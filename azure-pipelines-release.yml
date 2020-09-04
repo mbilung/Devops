@@ -1,0 +1,28 @@
+# Author: Subash Pradhan
+# Author: ...
+stages:
+- stage: Dev
+  condition: in(variables['Build.SourceBranch'], 'refs/heads/master')
+  displayName: Dev
+  jobs:
+  - template: deploy.yml
+    parameters:      
+      environment: dev
+      
+- stage: QA
+  dependsOn: [Dev]
+  condition: in(variables['Build.SourceBranch'], 'refs/heads/master')
+  displayName: QA
+  jobs:
+  - template: deploy.yml
+    parameters:      
+      environment: qa
+      
+- stage: Prod
+  condition: in(variables['Build.SourceBranch'], 'refs/heads/master')
+  dependsOn: [QA]
+  displayName: Prod
+  jobs:
+  - template: deploy.yml
+    parameters:      
+      environment: prod

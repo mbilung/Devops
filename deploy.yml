@@ -1,0 +1,48 @@
+parameters:  
+  environment: ''  
+jobs:
+- deployment: WebAPP Fastcarz
+  displayName: Deploy
+  pool:
+    vmImage: vs2017-win2016
+  variables:  
+  - group: ${{ parameters.environment }}
+  environment: ${{ parameters.environment }}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - checkout: self
+          persistCredentials: false        
+        - task: DownloadBuildArtifacts@0
+          displayName: Download artifacts
+          inputs:
+            buildType: specific
+            project: xxxxxxxxxxxxxxxxxxxxxxxxxxx
+            pipeline: 'xx'
+            buildVersionToDownload: latestFromBranch
+            branchName: refs/heads/master
+            downloadType: single
+            artifactName: drop
+            downloadPath: $(System.ArtifactsDirectory)/web       
+         
+		- task: AzureRmWebAppDeployment@3
+		  displayName: 'Deploy FastCarz WEB'
+		  inputs:
+            azureSubscription: ${{ variables.azureSubscription }}
+            WebAppName: ${{ variables.webappname }}
+            Package: '$(System.ArtifactsDirectory)/web/**/*.zip'            
+            TakeAppOfflineFlag: true
+            UseWebDeploy: true
+            RenameFilesFlag: true
+        - task: AzureRmWebAppDeployment@3
+          displayName: 'Deploy FastCarz API'
+          inputs:
+            azureSubscription: ${{ variables.azureSubscription }}
+            appType: api
+            WebAppName: subashtestapi
+            Package: '$(System.ArtifactsDirectory)/web/**/*.zip'    
+            TakeAppOfflineFlag: true
+            UseWebDeploy: true
+            RenameFilesFlag: true
+        

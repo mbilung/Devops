@@ -3,7 +3,7 @@ jobs:
 - job: Template
   steps:
   - task: AzureResourceGroupDeployment@2
-    displayName: Validate WabtecOneCustomer.json
+    displayName: Validate Template
     inputs:
       azureSubscription: $(azureSubscription)
       resourceGroupName: $(resourceGroupName)

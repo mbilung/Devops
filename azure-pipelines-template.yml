@@ -1,0 +1,23 @@
+name: $(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+jobs:
+- job: Template
+  steps:
+  - task: AzureResourceGroupDeployment@2
+    displayName: Validate WabtecOneCustomer.json
+    inputs:
+      azureSubscription: $(azureSubscription)
+      resourceGroupName: $(resourceGroupName)
+      csmFile: azuredeploy.parameters.json      
+      deploymentMode: Validation
+  - task: CopyFiles@2
+    displayName: Stage template
+    inputs:
+      contents: |
+        azuredeploy.json
+        azuredeploy.parameters.json        
+      targetFolder: $(Build.ArtifactStagingDirectory)
+  - task: PublishBuildArtifacts@1
+    displayName: Publish template
+    inputs:
+      PathtoPublish: $(Build.ArtifactStagingDirectory)
+      ArtifactName: drop

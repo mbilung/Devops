@@ -7,7 +7,8 @@ jobs:
     inputs:
       azureSubscription: $(azureSubscription)
       resourceGroupName: $(resourceGroupName)
-      csmFile: azuredeploy.parameters.json      
+      csmFile: azuredeploy.json
+      csmParametersFile: azuredeploy.parameters.json
       deploymentMode: Validation
   - task: CopyFiles@2
     displayName: Stage template

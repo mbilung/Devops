@@ -1,0 +1,68 @@
+trigger: 
+  - master  
+
+name: $(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+resources:
+- repo: self
+pool:
+  name: Azure Pipelines
+  vmImage: windows-2019
+steps:
+- task: gittools.gitversion.gitversion-task.GitVersion@3
+  displayName: GitVersion
+  inputs:
+    updateAssemblyInfo: true
+
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore'
+  inputs:
+    command: restore
+
+    vstsFeed: '$(packageFeed)'
+
+
+- task: VSBuild@1
+  displayName: 'Build solution **\*.sln'
+  inputs:
+    solution: '$(Parameters.solution)'
+
+    platform: '$(BuildPlatform)'
+
+    configuration: '$(BuildConfiguration)'
+
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet publish'
+  inputs:
+    command: publish
+
+    publishWebProjects: false
+
+    arguments: '-c Release '
+
+    zipAfterPublish: false
+
+
+- task: VSTest@2
+  displayName: 'VsTest - RunTest'
+  inputs:
+    testAssemblyVer2: Test.dll
+    searchFolder: 'Test\bin\Release\netcoreapp3.1'
+    codeCoverageEnabled: true
+    platform: '$(BuildPlatform)'
+    configuration: '$(BuildConfiguration)'
+
+
+
+
+- task: CopyFiles@2
+  displayName: Stage build
+  inputs:
+    contents: '**/bin/**'
+    targetFolder: $(Build.ArtifactStagingDirectory)
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: drop'
+  inputs:
+    PathtoPublish: '$(build.artifactstagingdirectory)'

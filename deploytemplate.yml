@@ -1,0 +1,40 @@
+parameters:  
+  environment: ''  
+jobs:
+- deployment: Infra
+  displayName: Deploy
+  pool:
+    vmImage: vs2017-win2016
+  variables:  
+  - group: ${{ parameters.environment }}
+  environment: ${{ parameters.environment }}
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - checkout: self
+          persistCredentials: false        
+        - task: DownloadBuildArtifacts@0
+          displayName: Download artifacts
+          inputs:
+            buildType: specific
+            project: xxxxxxxxxxxxxxxxxxxxxxxxxxx
+            pipeline: 'xx'
+            buildVersionToDownload: latestFromBranch
+            branchName: refs/heads/master
+            downloadType: single
+            artifactName: drop
+            downloadPath: $(System.ArtifactsDirectory)/infra
+
+
+        - task: AzureResourceManagerTemplateDeployment@3
+          displayName: 'Deploy to Dev'
+          inputs:
+            azureResourceManagerConnection: ${{ variables.azureSubscriptionendpoint }}
+            subscriptionId: ${{ variables.azureSubscription }}
+            resourceGroupName: ${{ variables.resourceGroupName }}
+            location: 'East US'
+            csmFile: '$(System.ArtifactsDirectory)/infra/azuredeploy.json'
+            csmParametersFile: '$(System.ArtifactsDirectory)/infra/azuredeploy.parameters.json'
+            overrideParameters: '-adminPassword "$(AdminPassword)"'
+        

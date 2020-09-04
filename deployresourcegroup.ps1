@@ -3,8 +3,7 @@
   [string]$Subscription="xxxxxxxxxx",
   [string]$Templatefile="xxxxxx\azuredeploy.json",
   [string]$Parametersfile="xxxxxxxxx\azuredeploy.parameters.json",
-  [string]$administratorLoginPassword,
-  
+  [string]$administratorLoginPassword
 
 )
 
@@ -30,7 +29,7 @@ function Invoke-ValidateResourceGroupDeployment
     [string]$ResourceGroup,
     [string]$Templatefile,
     [string]$Parametersfile,
-	[string]$administratorLoginPassword,
+    [string]$administratorLoginPassword,
     [string]$Subscription
   )
 
@@ -48,7 +47,7 @@ function Invoke-ResourceGroupDeployment{
     [string]$ResourceGroup,
     [string]$Templatefile,
     [string]$Parametersfile,
-	[string]$administratorLoginPassword,
+    [string]$administratorLoginPassword,
     [string]$Subscription  
   )
   $administratorLoginPassword=Get-SecretValue

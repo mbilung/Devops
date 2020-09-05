@@ -1,0 +1,34 @@
+name: $(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+resources:
+- repo: self
+queue:
+  name: Hosted Ubuntu 1604
+variables:
+  containerRepositoryName: toytrex/middlelayerapi
+  dockerfile: '$(Agent.BuildDirectory)/Dockerfile'
+  azureContainerRegistry: subashtest.azurecr.io
+  azureSubscriptionEndpoint: 'subashtest - Service Endpoint'
+  ImageName: $(containerRepositoryName):$(Build.BuildId)
+  
+steps:
+- task: Docker@1
+  displayName: 'Docker: Build Image'
+  condition: eq($(Build.SourceBranch), 'refs/heads/master')
+  inputs:
+    dockerFile: $(dockerfile)
+    imageName: $(taggedImageName)
+- task: Docker@1
+  displayName: 'Docker: login'
+  condition: eq($(Build.SourceBranch), 'refs/heads/master')
+  inputs:
+    azureContainerRegistry: $(azureContainerRegistry)
+    azureSubscriptionEndpoint: $(azureSubscriptionEndpoint)
+    command: 'login'
+- task: Docker@1
+  displayName: 'Docker: push'
+  condition: eq($(Build.sourceBranch), 'refs/heads/master')
+  inputs:
+    azureContainerRegistry: $(azureContainerRegistry)
+    azureSubscriptionEndpoint: $(azureSubscriptionEndpoint)
+    imageName: $(imageName)
+    command: 'push'
